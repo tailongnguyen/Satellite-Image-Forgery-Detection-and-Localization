@@ -3,6 +3,7 @@ from skimage.io import imread
 from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 import pickle
+import cv2 
 
 aae = AdversarialAutoencoder()
 aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
@@ -19,7 +20,7 @@ for fol in ['forged_patches', 'pristine_patches']:
 
         print("[" + "="*cur_stage + " "*(stage - cur_stage) + "]",
             end='\r', flush=True)
-        im = cv2.imread(os.path.join(path, idx))
+        im = cv2.imread(os.path.join('data', fol, idx))
         if im.shape != (64, 64, 3):
             continue
         im = im.astype(np.float32)/255.
@@ -29,23 +30,25 @@ for fol in ['forged_patches', 'pristine_patches']:
         encodings.append(encoding)
         counter[fol] += 1
 
-encodings = np.asarray(encodings)
-
+encodings = np.squeeze(np.asarray(encodings))
+np.save("encodings", encodings)
+print(
+    "{} forged patches and {} pristine patches".format(counter['forged_patches'], counter['pristine_patches'])
+)
 clf = SVC(gamma=1/2048, probability=True)
-pca = PCA(n_components=3)
-pca.fit(encodings)
-X_3d = pca.transform(encodings)
+# pca = PCA(n_components=3)
+# pca.fit(encodings)
+# X_3d = pca.transform(encodings)
 
-print(X.shape)
 
 y = np.ones((encodings.shape[0], 1))
 y[:counter['forged_patches']] = 0
 y[counter['pristine_patches']:] = 1
 
-clf.fit(X_3d, y)
+clf.fit(encodings, y)
 filename = 'finalized_model.sav'
 pickle.dump(clf, open(filename, 'wb'))
 
 loaded_model = pickle.load(open(filename, 'rb'))
-result = loaded_model.score(X_3d, y)
+result = loaded_model.score(encodings, y)
 print(result)

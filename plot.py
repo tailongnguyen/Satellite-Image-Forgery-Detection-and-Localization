@@ -3,8 +3,8 @@ import cv2
 import os
 import matplotlib.pyplot as plt
 
-# aae = AdversarialAutoencoder()
-# aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
+aae = AdversarialAutoencoder()
+aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
 
 def sliding_window(image, stepSize, windowSize):
     # slide a window across the image
@@ -22,20 +22,20 @@ def sliding_window(image, stepSize, windowSize):
             yield (left_x, left_y, image[left_y: right_y, left_x: right_x])
 
 
-imgs = os.listdir("test_data")
-im = cv2.imread("test_data/" + np.random.choice(imgs))
+imgs = os.listdir("data/test_data")
+im = cv2.imread("data/test_data/" + np.random.choice(imgs))
 mask = np.zeros((640, 640)).astype(np.float32)
-
+svm_clf = pickle.load(open("finalized_model.sav", "rb"))
 for (x, y, patch) in sliding_window(im, 20, (64, 64)):
-    # patch = patch.astype(np.float32)/255.0
-    # encoding = aae.adversarial_autoencoder.layers[1].predict(
-    #     np.expand_dims(patch, 0))
-    # encoding.resize((1, 2048))
+    patch = patch.astype(np.float32)/255.0
+    encoding = aae.adversarial_autoencoder.layers[1].predict(
+        np.expand_dims(patch, 0))
+    encoding.resize((1, 2048))
     # en_3d = pca.transform(encoding)
-    # probs = svm_clf.predict_proba(en_3d)
-    probs = np.random.uniform(0, 1)
+    probs = svm_clf.predict_proba(encoding)
+    # probs = np.random.uniform(0, 1)
     mask[y:y+64, x:x+64] = np.maximum(mask[y:y+64, x:x+64],
-                                      np.ones((64, 64), dtype=np.float32) * probs)
+                                      np.ones((64, 64), dtype=np.float32) * probs[0][0])
 
 plt.figure()
 plt.subplot(121)
