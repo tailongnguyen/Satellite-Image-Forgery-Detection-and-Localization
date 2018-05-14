@@ -6,7 +6,8 @@ import pickle
 import cv2 
 
 aae = AdversarialAutoencoder()
-aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
+# aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
+aae.autoencoder.load_weights("autoencoder.h5")
 
 encodings = []
 counter = {"forged_patches": 0, "pristine_patches": 0}
@@ -18,14 +19,12 @@ for fol in ['forged_patches', 'pristine_patches']:
         if (i+1) % 100 == 0:
             cur_stage += 1
 
-        print("[" + "="*cur_stage + " "*(stage - cur_stage) + "]",
-            end='\r', flush=True)
+        print("[" + "="*cur_stage + " "*(stage - cur_stage) + "]", end='\r', flush=True)
         im = cv2.imread(os.path.join('data', fol, idx))
         if im.shape != (64, 64, 3):
             continue
-        im = im.astype(np.float32)/255.
-        encoding = aae.adversarial_autoencoder.layers[1].predict(
-            np.expand_dims(im, 0))
+        im = (im.astype(np.float32) - 175.0) / 175.0
+        encoding = aae.encoder.predict(np.expand_dims(im, 0))
         encoding = encoding.reshape(2048, 1)
         encodings.append(encoding)
         counter[fol] += 1
@@ -46,7 +45,7 @@ y[:counter['forged_patches']] = 0
 y[counter['pristine_patches']:] = 1
 
 clf.fit(encodings, y)
-filename = 'finalized_model.sav'
+filename = 'without_gan.sav'
 pickle.dump(clf, open(filename, 'wb'))
 
 loaded_model = pickle.load(open(filename, 'rb'))

@@ -4,7 +4,8 @@ import os
 import matplotlib.pyplot as plt
 
 aae = AdversarialAutoencoder()
-aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
+# aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
+aae.autoencoder.load_weights("autoencoder.h5")
 
 def sliding_window(image, stepSize, windowSize):
     # slide a window across the image
@@ -25,11 +26,12 @@ def sliding_window(image, stepSize, windowSize):
 imgs = os.listdir("data/test_data")
 im = cv2.imread("data/test_data/" + np.random.choice(imgs))
 mask = np.zeros((640, 640)).astype(np.float32)
-svm_clf = pickle.load(open("finalized_model.sav", "rb"))
+svm_clf = pickle.load(open("without_gan.sav", "rb"))
 for (x, y, patch) in sliding_window(im, 20, (64, 64)):
-    patch = patch.astype(np.float32)/255.0
-    encoding = aae.adversarial_autoencoder.layers[1].predict(
-        np.expand_dims(patch, 0))
+    patch = (patch.astype(np.float32) - 175.0) / 175.0
+    # encoding = aae.adversarial_autoencoder.layers[1].predict(
+    #     np.expand_dims(patch, 0))
+    encoding= aae.encoder.predict(np.expand_dims(patch, 0))
     encoding.resize((1, 2048))
     # en_3d = pca.transform(encoding)
     probs = svm_clf.predict_proba(encoding)
