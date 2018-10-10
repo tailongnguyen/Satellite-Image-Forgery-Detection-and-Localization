@@ -18,7 +18,7 @@ if __name__ == '__main__':
     output = args.output
     images_folder = args.input
     images = os.listdir(images_folder)
-    
+
     [data.append(np.array(Image.open(images_folder + img), dtype='uint8')) for img in images]
     np.save(args.output, data)
 
