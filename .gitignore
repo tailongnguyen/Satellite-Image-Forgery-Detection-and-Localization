@@ -1,5 +1,5 @@
 data/
 *.h5
-*npy
+*.npy
 .idea/
 .env/
