@@ -23,13 +23,14 @@ except ImportError:
 import os
 import numpy as np
 
+
 class AdversarialAutoencoder():
     def __init__(self):
         self.img_rows = 64
         self.img_cols = 64
         self.channels = 3
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
-        self.encoded_shape = (4,4,128)
+        self.encoded_shape = (4, 4, 128)
         self.history = {"d_loss": [], "d_acc": [], "g_loss": [], "g_acc": []}
 
         optimizer = Adam(0.0005, 0.5)
@@ -37,8 +38,8 @@ class AdversarialAutoencoder():
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
         self.discriminator.compile(loss='binary_crossentropy',
-            optimizer=optimizer,
-            metrics=['accuracy'])
+                                   optimizer=optimizer,
+                                   metrics=['accuracy'])
 
         # Build and compile the encoder / decoder
         self.encoder = self.build_encoder()
@@ -67,7 +68,7 @@ class AdversarialAutoencoder():
     def build_encoder(self):
         # Encoder
         encoder = Sequential()
-        encoder.add(Conv2D(16, kernel_size=6, strides=1, padding='same', input_shape = self.img_shape))
+        encoder.add(Conv2D(16, kernel_size=6, strides=1, padding='same', input_shape=self.img_shape))
         encoder.add(BatchNormalization())
         encoder.add(Conv2D(16, kernel_size=5, strides=2, padding='same'))
         encoder.add(BatchNormalization())
@@ -84,7 +85,7 @@ class AdversarialAutoencoder():
     def build_decoder(self):
         # Decoder
         decoder = Sequential()
-        decoder.add(Conv2DTranspose(64, kernel_size = 2, strides = 2, padding = 'same', input_shape = self.encoded_shape))
+        decoder.add(Conv2DTranspose(64, kernel_size=2, strides=2, padding='same', input_shape=self.encoded_shape))
         decoder.add(BatchNormalization())
         decoder.add(Conv2DTranspose(32, kernel_size=3, strides=2, padding='same'))
         decoder.add(BatchNormalization())
@@ -103,27 +104,27 @@ class AdversarialAutoencoder():
 
         model = Sequential()
 
-        model.add(Conv2D(16, kernel_size = 5, strides = 1, input_shape = self.img_shape))
+        model.add(Conv2D(16, kernel_size=5, strides=1, input_shape=self.img_shape))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization())
         
-        model.add(Conv2D(16, kernel_size = 2, strides = 2))
+        model.add(Conv2D(16, kernel_size=2, strides=2))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization())
         
-        model.add(Conv2D(32, kernel_size = 4, strides = 1))
+        model.add(Conv2D(32, kernel_size=4, strides=1))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization())
         
-        model.add(Conv2D(32, kernel_size = 2, strides = 2))
+        model.add(Conv2D(32, kernel_size=2, strides=2))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization())
 
-        model.add(Conv2D(64, kernel_size = 3, strides = 1))
+        model.add(Conv2D(64, kernel_size=3, strides=1))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization())
         
-        model.add(Conv2D(64, kernel_size = 2, strides = 2))
+        model.add(Conv2D(64, kernel_size=2, strides=2))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization())
         
@@ -191,8 +192,8 @@ class AdversarialAutoencoder():
 
         # Load the dataset
         X_train = np.load("data.npy")
-        mean = np.mean(X_train, axis=(0,1,2,3))
-        std  = np.std(X_train, axis=(0,1,2,3))
+        mean = np.mean(X_train, axis=(0, 1, 2, 3))
+        std = np.std(X_train, axis=(0, 1, 2, 3))
         X_train = (X_train.astype(np.float32) - mean) / (std + 1e-7)
         print("Start training on {} images".format(X_train.shape[0]))
 
@@ -254,8 +255,8 @@ class AdversarialAutoencoder():
         plt.xlabel("Iter")
         plt.ylabel("Loss")
         step = len(self.history['d_loss']) // 10 if len(self.history['d_loss']) > 1000 else 1
-        plt.plot(np.arange(len(self.history['d_loss'][::step])), self.history['d_loss'][::step], c = 'C0', label = 'discriminator')
-        plt.plot(np.arange(len(self.history['g_loss'][::step])), self.history['g_loss'][::step], c = 'C1', label = 'generator')
+        plt.plot(np.arange(len(self.history['d_loss'][::step])), self.history['d_loss'][::step], c='C0', label='discriminator')
+        plt.plot(np.arange(len(self.history['g_loss'][::step])), self.history['g_loss'][::step], c='C1', label='generator')
         plt.legend()
         plt.savefig("loss")
 
@@ -264,7 +265,7 @@ class AdversarialAutoencoder():
         plt.xlabel("Iter")
         plt.ylabel("Acc")
         step = len(self.history['d_acc']) // 10 if len(self.history['d_acc']) > 1000 else 1
-        plt.plot(np.arange(len(self.history['d_acc'][::step])), self.history['d_acc'][::step], c = 'C0', label = 'discriminator')
+        plt.plot(np.arange(len(self.history['d_acc'][::step])), self.history['d_acc'][::step], c='C0', label='discriminator')
         plt.plot(np.arange(len(self.history['g_acc'][::step])), self.history['g_acc'][::step], c='C1', label='generator')
         plt.savefig("accuracy")
 
@@ -282,8 +283,8 @@ class AdversarialAutoencoder():
         cnt = 0
         for i in range(r):
             for j in range(c):
-                axs[i,j].imshow(gen_imgs[cnt])
-                axs[i,j].axis('off')
+                axs[i, j].imshow(gen_imgs[cnt])
+                axs[i, j].axis('off')
                 cnt += 1
         fig.savefig("images/%d.png" % it)
         plt.close()
@@ -298,13 +299,14 @@ class AdversarialAutoencoder():
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--batch_size', type=int, help='batch_size', default = 128)
-    parser.add_argument('--it', type=int, help='number of iterations to train', default = 10000)
+    parser.add_argument('--batch_size', type=int, help='batch_size', default=128)
+    parser.add_argument('--it', type=int, help='number of iterations to train', default=10000)
     parser.add_argument('--ae_it', type=int,
-                        help='number of epochs to pretrain the autoencoder', default = 20000)
+                        help='number of epochs to pretrain the autoencoder', default=20000)
     parser.add_argument('--d_it', type=int,
-                       help='number of epochs to pretrain the discriminator', default = 20000)
+                        help='number of epochs to pretrain the discriminator', default=20000)
     return parser.parse_args(argv)
+
 
 if __name__ == '__main__':
     aae = AdversarialAutoencoder()
@@ -312,7 +314,8 @@ if __name__ == '__main__':
     print("Arguments: iterations {}, pre_ae_iterations {}, pre_dis_iterations {}, batch_size {}".format(
         args.it, args.ae_it, args.d_it, args.batch_size))
     try:
-        aae.train(iterations=args.it, pre_ae_iterations = args.ae_it, pre_dis_iterations = args.d_it, batch_size= args.batch_size)
+        aae.train(iterations=args.it, pre_ae_iterations=args.ae_it,
+                  pre_dis_iterations=args.d_it, batch_size=args.batch_size)
         aae.save_model()
     except KeyboardInterrupt:
         aae.plot()
