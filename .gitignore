@@ -3,3 +3,5 @@ data/
 *.npy
 .idea/
 .env/
+.gpu-env/
+*.png
