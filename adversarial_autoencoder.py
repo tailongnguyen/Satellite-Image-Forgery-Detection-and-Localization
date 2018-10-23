@@ -34,7 +34,7 @@ class AdversarialAutoencoder():
         self.history = {'d_loss': [], 'd_acc': [], 'g_loss': [], 'g_acc': []}
 
         optimizer = Adam(0.0005, 0.5)
-        # optimizer = RMSprop(lr=0.001, clipvalue=1.0, decay=3e-8)
+
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
         self.discriminator.compile(loss='binary_crossentropy',
@@ -52,7 +52,7 @@ class AdversarialAutoencoder():
         reconstructed_img = self.decoder(encoded_repr)
 
         self.autoencoder = Model(img, reconstructed_img)
-        self.autoencoder.compile(loss='mse', optimizer = optimizer)
+        self.autoencoder.compile(loss='mse', optimizer=optimizer)
         # For the adversarial_autoencoder model we will only train the generator
         self.discriminator.trainable = False
 
@@ -61,8 +61,9 @@ class AdversarialAutoencoder():
 
         # The adversarial_autoencoder model  (stacked generator and discriminator)
         self.adversarial_autoencoder = Model(img, [reconstructed_img, validity])
-        self.adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'], loss_weights=[0.99, 0.01], optimizer= optimizer, metrics=['accuracy'])
-        self.adversarial_autoencoder.summary()
+        self.adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'],
+                                             loss_weights=[0.99, 0.01], optimizer=optimizer, metrics=['accuracy'])
+        self.k.summary()
         print(self.adversarial_autoencoder.metrics_names)
 
     def build_encoder(self):
@@ -176,7 +177,8 @@ class AdversarialAutoencoder():
 
             history['loss'].append(d_loss[0])
             history['acc'].append(d_loss[1])
-            print('[Pretrain Discriminator]---it {}/{} | loss: {:.4f} | acc {:.2f}'.format(it, iterations, d_loss[0], d_loss[1]), end='\r', flush=True)
+            print('[Pretrain Discriminator]---it {}/{} | loss: {:.4f} | acc {:.2f}'
+                  .format(it, iterations, d_loss[0], d_loss[1]), end='\r', flush=True)
         
         plt.figure()
         plt.title('Pretrain Discriminator')
@@ -202,8 +204,7 @@ class AdversarialAutoencoder():
             print('Loaded discriminator weights!')
         elif pre_dis_iterations > 0:
             self.pretrain_discriminator(X_train, pre_dis_iterations, batch_size)
-        
-        
+
         if os.path.isfile('autoencoder.h5'):
             self.autoencoder.load_weights('autoencoder.h5')
             print('Loaded autoencoder weights!')
@@ -211,10 +212,9 @@ class AdversarialAutoencoder():
             self.pretrain_ae(X_train, pre_ae_iterations, batch_size)
 
         valid = np.ones((batch_size, 1))
-        fake = np.zeros((batch_size, 1))
         half_batch = batch_size // 2
         half_valid = np.ones((half_batch, 1))
-        half_fake = np.ones((half_batch, 1))
+        half_fake = np.zeros((half_batch, 1))
 
         for it in range(iterations):
             # ---------------------
@@ -238,9 +238,10 @@ class AdversarialAutoencoder():
             self.history['g_loss'].append(g_loss[0])
             self.history['g_acc'].append(g_loss[-1]*100)
 
-            print('[Training Adversarial AE]---It {}/{} | d_loss: {:.4f} | d_acc: {:.2f} | g_loss: {:.4f} | g_acc: {:.2f}'.format(
-                it, iterations, d_loss[0], d_loss[1]*100, g_loss[0], g_loss[-1]*100), end='\r', flush=True)
-            
+            print('[Training Adversarial AE]---It {}/{} |'
+                  ' d_loss: {:.4f} | d_acc: {:.2f} |'
+                  ' g_loss: {:.4f} | g_acc: {:.2f}'
+                  .format(it, iterations, d_loss[0], d_loss[1]*100, g_loss[0], g_loss[-1]*100), end='\r', flush=True)
 
             # If at save interval => save generated image samples
             if it % sample_interval == 0:
