@@ -5,3 +5,4 @@ data/
 .env/
 .gpu-env/
 *.png
+*.pkl
