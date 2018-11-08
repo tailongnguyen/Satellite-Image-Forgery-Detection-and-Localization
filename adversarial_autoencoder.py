@@ -37,9 +37,7 @@ class AdversarialAutoencoder():
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
-        self.discriminator.compile(loss='binary_crossentropy',
-                                   optimizer=optimizer,
-                                   metrics=['accuracy'])
+        self.discriminator.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
         # Build and compile the encoder / decoder
         self.encoder = self.build_encoder()
@@ -63,7 +61,7 @@ class AdversarialAutoencoder():
         self.adversarial_autoencoder = Model(img, [reconstructed_img, validity])
         self.adversarial_autoencoder.compile(loss=['mse', 'binary_crossentropy'],
                                              loss_weights=[0.99, 0.01], optimizer=optimizer, metrics=['accuracy'])
-        self.k.summary()
+        self.adversarial_autoencoder.summary()
         print(self.adversarial_autoencoder.metrics_names)
 
     def build_encoder(self):
@@ -256,8 +254,10 @@ class AdversarialAutoencoder():
         plt.xlabel('Iter')
         plt.ylabel('Loss')
         step = len(self.history['d_loss']) // 10 if len(self.history['d_loss']) > 1000 else 1
-        plt.plot(np.arange(len(self.history['d_loss'][::step])), self.history['d_loss'][::step], c='C0', label='discriminator')
-        plt.plot(np.arange(len(self.history['g_loss'][::step])), self.history['g_loss'][::step], c='C1', label='generator')
+        plt.plot(np.arange(len(self.history['d_loss'][::step])), self.history['d_loss'][::step],
+                 c='C0', label='discriminator')
+        plt.plot(np.arange(len(self.history['g_loss'][::step])), self.history['g_loss'][::step],
+                 c='C1', label='generator')
         plt.legend()
         plt.savefig('loss')
 
@@ -266,8 +266,11 @@ class AdversarialAutoencoder():
         plt.xlabel('Iter')
         plt.ylabel('Acc')
         step = len(self.history['d_acc']) // 10 if len(self.history['d_acc']) > 1000 else 1
-        plt.plot(np.arange(len(self.history['d_acc'][::step])), self.history['d_acc'][::step], c='C0', label='discriminator')
-        plt.plot(np.arange(len(self.history['g_acc'][::step])), self.history['g_acc'][::step], c='C1', label='generator')
+        plt.plot(np.arange(len(self.history['d_acc'][::step])), self.history['d_acc'][::step], c='C0',
+                 label='discriminator')
+        plt.plot(np.arange(len(self.history['g_acc'][::step])), self.history['g_acc'][::step], c='C1',
+                 label='generator')
+        plt.legend()
         plt.savefig('accuracy')
 
     def sample_images(self, it, imgs):
@@ -318,5 +321,6 @@ if __name__ == '__main__':
         aae.train(iterations=args.it, pre_ae_iterations=args.ae_it,
                   pre_dis_iterations=args.d_it, batch_size=args.batch_size)
         aae.save_model()
+        aae.plot()
     except KeyboardInterrupt:
         aae.plot()

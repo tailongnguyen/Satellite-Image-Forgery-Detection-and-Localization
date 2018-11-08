@@ -6,3 +6,5 @@ data/
 .gpu-env/
 *.png
 *.pkl
+__pychache__/*
+*.sav

@@ -31,7 +31,7 @@ for (x, y, patch) in sliding_window(im, 20, (64, 64)):
     patch = (patch.astype(np.float32) - 175.0) / 175.0
     # encoding = aae.adversarial_autoencoder.layers[1].predict(
     #     np.expand_dims(patch, 0))
-    encoding= aae.encoder.predict(np.expand_dims(patch, 0))
+    encoding = aae.encoder.predict(np.expand_dims(patch, 0))
     encoding.resize((1, 2048))
     # en_3d = pca.transform(encoding)
     probs = svm_clf.predict_proba(encoding)

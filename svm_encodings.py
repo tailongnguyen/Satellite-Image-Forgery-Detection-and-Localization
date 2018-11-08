@@ -6,7 +6,7 @@ import pickle
 import cv2 
 
 aae = AdversarialAutoencoder()
-# aae.adversarial_autoencoder.load_weights("adversarial_ae.h5")
+
 aae.autoencoder.load_weights("autoencoder.h5")
 
 encodings = []
